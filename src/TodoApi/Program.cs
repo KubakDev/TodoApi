@@ -69,8 +69,11 @@ builder.Services.AddControllers(options =>
        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
      }).AddJsonOptions(options =>
                    {
-                     // Use the default property (Pascal) casing.
-                     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                     x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                     x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+
+                     x.JsonSerializerOptions.Converters.Add(new BsonDocumentConverter());
+                     x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                    }
                 ); ;
 
