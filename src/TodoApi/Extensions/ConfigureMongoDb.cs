@@ -1,7 +1,3 @@
-using System;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
@@ -11,7 +7,7 @@ using MongoDB.Driver.Core.Events;
 using TodoApi.Settings;
 using TodoApi.Models;
 
-namespace OrbitFoodApi.Extensions
+namespace TodoApi.Extensions
 {
   public static partial class StartupConfigurations
   {

@@ -3,10 +3,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.OpenApi.Models;
-using OrbitFoodApi.Extensions;
+using TodoApi.Extensions;
 using TodoApi.Models;
 using TodoApi.Services;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -51,7 +50,7 @@ builder.Services.AddAuthentication(options =>
 });
 builder.Services.AddAuthorization(options =>
           {
-            options.AddPolicy("read:weather", policy => policy.Requirements.Add(new HasScopeRequirement("read:weather", $"https://{builder.Configuration["Auth0:Domain"]}/")));
+            options.AddPolicy("read:weather", policy => policy.Requirements.Add(new HasScopeRequirement("read:weather", $"https://{builder.Configuration["Authentication:Domain"]}/")));
           });
 
 builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
@@ -69,11 +68,8 @@ builder.Services.AddControllers(options =>
        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
      }).AddJsonOptions(options =>
                    {
-                     x.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                     x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-
-                     x.JsonSerializerOptions.Converters.Add(new BsonDocumentConverter());
-                     x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                     // Use the default property (Pascal) casing.
+                     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                    }
                 ); ;
 
