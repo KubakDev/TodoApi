@@ -8,8 +8,9 @@ using MongoDB.Bson;
 namespace TodoApi.Controllers;
 
 [ApiController]
-[Route("api/todos")]
-[Authorize]
+[Route("todos")]
+[Produces("application/json")]
+// [Authorize]
 public class TodosController : ControllerBase
 {
   private readonly TodosService _todosService;
