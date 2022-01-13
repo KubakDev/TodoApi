@@ -33,6 +33,13 @@ namespace TodoApi.Extensions
     {
       var config = serviceProvider.GetRequiredService<IOptions<MongoDBOptions>>();
 
+      //get env variable MONGO_SECRET
+      var MongoConnectionString = System.Environment.GetEnvironmentVariable("MongoConnectionString");
+
+
+      if (!string.IsNullOrEmpty(MongoConnectionString))
+        config.Value.ConnectionString = MongoConnectionString;
+
       var clientSetttings = MongoClientSettings.FromConnectionString(config.Value.ConnectionString);
 
 #if DEBUG
