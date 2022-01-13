@@ -3,7 +3,6 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace TodoApi.Models;
 
-[BsonIgnoreExtraElements]
 public class Todo
 {
   [BsonId]
@@ -14,7 +13,7 @@ public class Todo
 
   public string Note { get; set; } = string.Empty;
 
-  public string Date { get; set; }
+  public DateTime Date { get; set; }
 
-  public Boolean isComplete { get; set; } = false;
+  public Boolean IsComplete { get; set; } = false;
 }
