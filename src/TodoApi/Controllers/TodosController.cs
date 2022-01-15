@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.ComponentModel.DataAnnotations;
 using MongoDB.Bson;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace TodoApi.Controllers;
 
@@ -18,8 +19,11 @@ public class TodosController : ControllerBase
       _todosService = todosService;
 
   [HttpGet]
-  public async Task<List<Todo>> Get() =>
-      await _todosService.GetAsync();
+  public async Task<List<Todo>> Get()
+  {
+
+    return await _todosService.GetAsync();
+  }
 
 
   [HttpGet("{id:length(24)}")]
@@ -42,11 +46,19 @@ public class TodosController : ControllerBase
   //   return Ok(new BsonDocument());
   // }
 
-  [AllowAnonymous]
   [HttpPost]
   public async Task<IActionResult> Post(Todo newTodo)
   {
+    string token = Request.Headers["Authorization"];
+    token = token.Substring(7, token.Length - 7);
+
+    var handler = new JwtSecurityTokenHandler();
+    var decodedValue = handler.ReadJwtToken(token);
+    Console.WriteLine(decodedValue.Payload.Sub);
+
+    newTodo.UserId = decodedValue.Payload.Sub;
     await _todosService.CreateAsync(newTodo);
+
 
     return CreatedAtAction(nameof(Get), new { id = newTodo.Id }, newTodo);
   }
