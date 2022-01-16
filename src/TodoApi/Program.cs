@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.OpenApi.Models;
 using TodoApi.Extensions;
 using TodoApi.Models;
+using TodoApi.Models.Common;
 using TodoApi.Services;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,13 +63,10 @@ builder.Services.AddControllers(options =>
       .Build();
 
   options.Filters.Add(new AuthorizeFilter(policy));
-})
-     .AddNewtonsoftJson(options =>
-     {
-       options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-     }).AddJsonOptions(options =>
+}).AddJsonOptions(options =>
                    {
                      // Use the default property (Pascal) casing.
+                     options.JsonSerializerOptions.Converters.Add(new BsonDocumentConverter());
                      options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                    }
                 ); ;
