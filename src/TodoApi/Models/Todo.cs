@@ -18,4 +18,5 @@ public class Todo
   public DateTime Date { get; set; }
 
   public Boolean IsComplete { get; set; } = false;
+  public Boolean IsTimeAvailable { get; set; } = true;
 }
