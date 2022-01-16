@@ -23,18 +23,18 @@ public class TodosController : ControllerBase
   public TodosController(TodosService todosService) =>
       _todosService = todosService;
 
-  [HttpGet]
-  public async Task<List<Todo>> List()
-  {
 
-    return await _todosService.ListAsync();
-  }
+  // GET /todos?From=&To=
+
+  [HttpGet]
+  public Task<List<Todo>> List([FromQuery] ListTodoItems model)
+    => _todosService.ListAsync(User.GetId(), model);
 
 
   [HttpGet("{id:length(24)}")]
-  public async Task<ActionResult<Todo>> List([StringLength(24, MinimumLength = 24)] string id)
+  public async Task<ActionResult<Todo>> GetTodoById([StringLength(24, MinimumLength = 24)] string id)
   {
-    var todo = await _todosService.ListAsync(id);
+    var todo = await _todosService.GetByIdAsync(id);
 
     if (todo is null)
     {
@@ -44,44 +44,13 @@ public class TodosController : ControllerBase
     return todo;
   }
 
-  // [HttpGet]
-  // [AllowAnonymous]
-  // public ActionResult<BsonDocument> GetNice()
-  // {
-  //   return Ok(new BsonDocument());
-  // }
-
   [HttpPost]
-  public async Task<IActionResult> Post(CreateTodo create)
+  public async Task<ActionResult<Todo>> CreateTodo(CreateTodo create)
   {
-    string token = Request.Headers["Authorization"];
-    token = token.Substring(7, token.Length - 7);
-
-    var handler = new JwtSecurityTokenHandler();
-    var decodedValue = handler.ReadJwtToken(token);
-
-    if (string.IsNullOrEmpty(decodedValue.Payload.Sub))
-      return BadRequest(BasicResponse.CouldNotCreateResource);
-
-
-    Todo todo = new()
-    {
-      Title = create.Title,
-      Note = create.Note,
-      Date = create.Date,
-      IsTimeAvailable = create.IsTimeAvailable
-    };
-    todo.UserId = decodedValue.Payload.Sub;
+    var todo = create.ToTodo(User.GetId());
 
     await _todosService.CreateAsync(todo);
-
-    if (await _todosService.ListAsync(todo.Id) is Todo createdOrder)
-    {
-      return Ok(createdOrder);
-    }
-
-    return BadRequest(BasicResponse.CouldNotCreateResource);
-
+    return Ok(todo);
   }
 
 
@@ -89,31 +58,19 @@ public class TodosController : ControllerBase
   [HttpPut("{id:length(24)}")]
   public async Task<IActionResult> Update(string id, CreateTodo update)
   {
-    var existingTodo = await _todosService.ListAsync(id);
+    var todo = update.ToTodo(User.GetId());
+    var updated = await _todosService.UpdateAsync(id, todo);
 
-    Todo todo = new()
-    {
-      Title = update.Title,
-      Note = update.Note,
-      Date = update.Date,
-      IsTimeAvailable = update.IsTimeAvailable
-    };
-
-    if (todo is null)
-    {
+    if (updated is null)
       return NotFound();
-    }
 
-
-    await _todosService.UpdateAsync(id, todo);
-
-    return NoContent();
+    return Ok(updated);
   }
 
   [HttpDelete("{id:length(24)}")]
   public async Task<IActionResult> Delete(string id)
   {
-    var todo = await _todosService.ListAsync(id);
+    var todo = await _todosService.GetByIdAsync(id);
 
     if (todo is null)
     {

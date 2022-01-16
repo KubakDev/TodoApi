@@ -1,9 +1,6 @@
-using Api.Interfaces;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using TodoApi.Interfaces;
 using TodoApi.Models;
-using TodoApi.Models.QueryOptions;
+using TodoApi.Models.Requests;
 
 namespace TodoApi.Services
 {
@@ -14,49 +11,50 @@ namespace TodoApi.Services
     public static FilterDefinitionBuilder<Todo> Filter => Builders<Todo>.Filter;
     public static UpdateDefinitionBuilder<Todo> Update => Builders<Todo>.Update;
 
+    private static FindOneAndReplaceOptions<Todo, Todo> _ReturnAfter = new() { ReturnDocument = ReturnDocument.After };
+
     public TodosService(IMongoCollection<Todo> collection)
     {
       Collection = collection;
     }
 
 
-    public Task<List<Todo>> ListAsync(ITodoSearchOptions? searchOptions = null)
+    public Task<List<Todo>> ListAsync(string userId, ListTodoItems? request = null)
     {
 
-      var filter = GetFilterFromSearchOptions(searchOptions);
+      var filter = GetFilterFromSearchOptions(request);
       var find = Collection.Find(filter);
 
       return find.ToListAsync();
     }
 
-    public async Task<Todo?> ListAsync(string id) =>
+    public async Task<Todo?> GetByIdAsync(string id) =>
         await Collection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
     public async Task CreateAsync(Todo newTodo) =>
         await Collection.InsertOneAsync(newTodo);
 
-    public async Task UpdateAsync(string id, Todo updatedTodo) =>
-        await Collection.ReplaceOneAsync(x => x.Id == id, updatedTodo);
+    public async Task<Todo?> UpdateAsync(string id, Todo updatedTodo)
+      => await Collection.FindOneAndReplaceAsync(Filter.Eq(x => x.Id, id), updatedTodo, _ReturnAfter);
+
 
     public async Task RemoveAsync(string id) =>
         await Collection.DeleteOneAsync(x => x.Id == id);
 
-
-
-    protected static FilterDefinition<Todo> GetFilterFromSearchOptions(in ITodoSearchOptions? searchOptions)
+    protected static FilterDefinition<Todo> GetFilterFromSearchOptions(in ListTodoItems? request)
     {
-      if (searchOptions?.IsEmpty() ?? true) return Filter.Empty;
+      if (request?.IsEmpty() ?? true)
+        return Filter.Empty;
 
-      var filters = new List<FilterDefinition<Todo>>();
+      var filter = Filter.Empty;
 
-      if (searchOptions.Date != null)
-        filters.Add(Filter.Gte(doc => doc.Date, searchOptions.Date));
+      if (request.From is DateTime from)
+        filter &= Filter.Gte(x => x.Date, from);
 
-      return filters.Count == 0
-          ? Filter.Empty
-          : filters.Count == 1
-              ? filters[0]
-              : Filter.And(filters);
+      if (request.To is DateTime to)
+        filter &= Filter.Lte(x => x.Date, to);
+
+      return filter;
     }
 
   }
