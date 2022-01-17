@@ -16,7 +16,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureMongoDB(builder.Configuration);
 
-builder.Services.AddSingleton<TodosService>();
+builder.Services.AddScoped<TodosService>();
 builder.Services.AddSwaggerGen(c =>
 {
 
