@@ -56,9 +56,10 @@ public class TodosController : ControllerBase
 
   //TODO Cannot update todo
   [HttpPut("{id:length(24)}")]
-  public async Task<IActionResult> Update(string id, CreateTodo update)
+  public async Task<ActionResult<Todo>> Update([IsBsonId] string id, CreateTodo update)
   {
     var todo = update.ToTodo(User.GetId());
+    todo.Id = id;
     var updated = await _todosService.UpdateAsync(id, todo);
 
     if (updated is null)
