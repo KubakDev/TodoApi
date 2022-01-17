@@ -24,9 +24,9 @@ namespace TodoApi.Extensions
 
       return services.AddSingleton(ClientImplementationFactory)
                      .AddSingleton(DatabaseImplementationFactory)
-                     .AddSingleton(sp => CollectionImplementationFactory<Todo>(sp, "todos"))
-                     .AddSingleton(sp => CollectionImplementationFactory<User>(sp, "users"))
-                     ;
+                     .AddSingleton(sp => CollectionImplementationFactory<Todo>(sp, "todos"));
+
+
     }
 
     private static IMongoClient ClientImplementationFactory(IServiceProvider serviceProvider)
