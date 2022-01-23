@@ -19,7 +19,6 @@ public class CreateTodo
     Date = Date,
     Title = Title,
     UserId = userId,
-    IsTimeAvailable = IsTimeAvailable,
     IsComplete = IsComplete,
 
   };
