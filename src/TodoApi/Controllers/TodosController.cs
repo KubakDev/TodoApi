@@ -70,14 +70,14 @@ public class TodosController : ControllerBase
   [HttpDelete("{id:length(24)}")]
   public async Task<IActionResult> Delete(string id)
   {
-    var todo = await _todosService.GetByIdAsync(id);
+    var todo = await _todosService.GetByIdAsync(id, User.GetId());
 
     if (todo is null)
     {
       return NotFound();
     }
 
-    await _todosService.RemoveAsync(todo.Id);
+    await _todosService.RemoveAsync(todo.Id, User.GetId());
 
     return NoContent();
   }
