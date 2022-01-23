@@ -34,7 +34,7 @@ public class TodosController : ControllerBase
   [HttpGet("{id:length(24)}")]
   public async Task<ActionResult<Todo>> GetTodoById([StringLength(24, MinimumLength = 24)] string id)
   {
-    var todo = await _todosService.GetByIdAsync(id);
+    var todo = await _todosService.GetByIdAsync(id, User.GetId());
 
     if (todo is null)
     {
@@ -54,13 +54,12 @@ public class TodosController : ControllerBase
   }
 
 
-  //TODO Cannot update todo
   [HttpPut("{id:length(24)}")]
   public async Task<ActionResult<Todo>> Update([IsBsonId] string id, CreateTodo update)
   {
     var todo = update.ToTodo(User.GetId());
     todo.Id = id;
-    var updated = await _todosService.UpdateAsync(id, todo);
+    var updated = await _todosService.UpdateAsync(id, User.GetId(), todo);
 
     if (updated is null)
       return NotFound();

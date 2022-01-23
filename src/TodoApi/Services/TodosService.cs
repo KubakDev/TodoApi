@@ -23,23 +23,40 @@ namespace TodoApi.Services
     {
 
       var filter = GetFilterFromSearchOptions(request);
+      filter &= Filter.Eq(x => x.UserId, userId);
       var find = Collection.Find(filter);
 
       return find.ToListAsync();
     }
 
-    public async Task<Todo?> GetByIdAsync(string id) =>
-        await Collection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    public async Task<Todo?> GetByIdAsync(string id, string userId)
+    {
+
+      var filter = Filter.Eq(x => x.UserId, userId);
+      filter &= Filter.Eq(x => x.UserId, userId);
+
+      return await Collection.Find(filter).FirstOrDefaultAsync();
+    }
 
     public async Task CreateAsync(Todo newTodo) =>
         await Collection.InsertOneAsync(newTodo);
 
-    public async Task<Todo?> UpdateAsync(string id, Todo updatedTodo)
-      => await Collection.FindOneAndReplaceAsync(Filter.Eq(x => x.Id, id), updatedTodo, _ReturnAfter);
+    public async Task<Todo?> UpdateAsync(string id, string userId, Todo updatedTodo)
+    {
+      var filter = Filter.Eq(x => x.UserId, userId);
+      filter &= Filter.Eq(x => x.UserId, userId);
+      return await Collection.FindOneAndReplaceAsync(Filter.Eq(x => x.Id, id), updatedTodo, _ReturnAfter);
+    }
 
 
-    public async Task RemoveAsync(string id) =>
-        await Collection.DeleteOneAsync(x => x.Id == id);
+    public async Task RemoveAsync(string id, string userId)
+    {
+
+      var filter = Filter.Eq(x => x.UserId, userId);
+      filter &= Filter.Eq(x => x.UserId, userId);
+
+      await Collection.DeleteOneAsync(x => x.Id == id);
+    }
 
     protected static FilterDefinition<Todo> GetFilterFromSearchOptions(in ListTodoItems? request)
     {
