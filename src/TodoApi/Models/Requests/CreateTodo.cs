@@ -9,6 +9,7 @@ public class CreateTodo
 
 
   public DateTime Date { get; set; }
+  public bool IsComplete { get; set; } = false;
 
   public bool IsTimeAvailable { get; set; } = true;
 
@@ -18,7 +19,8 @@ public class CreateTodo
     Date = Date,
     Title = Title,
     UserId = userId,
-    IsTimeAvailable = IsTimeAvailable,
+    IsComplete = IsComplete,
+
   };
 
 }

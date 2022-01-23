@@ -11,12 +11,43 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.ConfigureMongoDB(builder.Configuration);
+builder.Services.AddControllers(
+  options =>
+{
+  var policy = new AuthorizationPolicyBuilder()
+      .RequireAuthenticatedUser()
+      .Build();
 
-builder.Services.AddScoped<TodosService>();
+  options.Filters.Add(new AuthorizeFilter(policy));
+}
+).AddJsonOptions(options =>
+                   {
+                     // Use the default property (Pascal) casing.
+                     options.JsonSerializerOptions.Converters.Add(new BsonDocumentConverter());
+                     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                   }
+                ); ;
+
+
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services
+.ConfigureMongoDB(builder.Configuration)
+.ConfigureAuth(builder.Configuration)
+.AddScoped<TodosService>()
+.AddSingleton<IAuthorizationHandler, HasScopeHandler>()
+.AddAuthentication(options =>
+{
+  options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+  options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+  options.Authority = builder.Configuration["Authentication:Domain"];
+  options.Audience = builder.Configuration["Authentication:Audience"];
+});
+
+
+
 builder.Services.AddSwaggerGen(c =>
 {
 
@@ -40,37 +71,6 @@ builder.Services.AddSwaggerGen(c =>
 
   c.OperationFilter<SecurityRequirementsOperationFilter>();
 });
-builder.Services.AddAuthentication(options =>
-{
-  options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-  options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-  options.Authority = builder.Configuration["Authentication:Domain"];
-  options.Audience = builder.Configuration["Authentication:Audience"];
-});
-builder.Services.AddAuthorization(options =>
-          {
-            options.AddPolicy("read:weather", policy => policy.Requirements.Add(new HasScopeRequirement("read:weather", $"https://{builder.Configuration["Authentication:Domain"]}/")));
-          });
-
-builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
-
-builder.Services.AddControllers(options =>
-{
-  var policy = new AuthorizationPolicyBuilder()
-      .RequireAuthenticatedUser()
-      .Build();
-
-  options.Filters.Add(new AuthorizeFilter(policy));
-}).AddJsonOptions(options =>
-                   {
-                     // Use the default property (Pascal) casing.
-                     options.JsonSerializerOptions.Converters.Add(new BsonDocumentConverter());
-                     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                   }
-                ); ;
-
 
 var app = builder.Build();
 

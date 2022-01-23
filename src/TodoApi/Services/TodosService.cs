@@ -54,6 +54,9 @@ namespace TodoApi.Services
       if (request.To is DateTime to)
         filter &= Filter.Lte(x => x.Date, to);
 
+      if (request.IsComplete is Boolean IsComplete)
+        filter &= Filter.Eq(x => x.IsComplete, IsComplete);
+
       return filter;
     }
 

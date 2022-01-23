@@ -19,5 +19,4 @@ public class Todo
 
   public bool IsComplete { get; set; } = false;
 
-  public bool IsTimeAvailable { get; set; } = true;
 }

@@ -6,6 +6,8 @@ public class ListTodoItems
 
   public DateTime? To { get; set; }
 
+  public Boolean? IsComplete { get; set; }
+
   public bool IsEmpty()
-    => From is null && To is null;
+    => From is null && To is null && IsComplete is null;
 }
