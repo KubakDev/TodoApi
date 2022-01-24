@@ -27,6 +27,16 @@ builder.Services.AddControllers(
                      options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                    }
                 ); ;
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+builder.Services.AddCors(options =>
+{
+  options.AddPolicy(name: MyAllowSpecificOrigins,
+                    builder =>
+                    {
+                      builder.WithOrigins("http://localhost:4200");
+                    });
+});
 
 
 builder.Services.AddEndpointsApiExplorer();
@@ -86,6 +96,7 @@ app.UseSwaggerUI(c =>
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors(MyAllowSpecificOrigins);
 
 app.MapControllers();
 
