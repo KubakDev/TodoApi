@@ -8,79 +8,24 @@ using TodoApi.Models;
 using TodoApi.Models.Common;
 using TodoApi.Services;
 var builder = WebApplication.CreateBuilder(args);
-
+var services = builder.Services;
+var config = builder.Configuration;
 // Add services to the container.
 
-builder.Services.AddControllers(
-  options =>
-{
-  var policy = new AuthorizationPolicyBuilder()
-      .RequireAuthenticatedUser()
-      .Build();
 
-  options.Filters.Add(new AuthorizeFilter(policy));
-}
-).AddJsonOptions(options =>
-                   {
-                     // Use the default property (Pascal) casing.
-                     options.JsonSerializerOptions.Converters.Add(new BsonDocumentConverter());
-                     options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                   }
-                ); ;
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+services.AddEndpointsApiExplorer();
 
-builder.Services.AddCors(options =>
-{
-  options.AddPolicy(name: MyAllowSpecificOrigins,
-                    builder =>
-                    {
-                      builder.WithOrigins("http://localhost:4200");
-                    });
-});
-
-
-builder.Services.AddEndpointsApiExplorer();
-
-builder.Services
-.ConfigureMongoDB(builder.Configuration)
-.ConfigureAuth(builder.Configuration)
+services
+.ConfigureMongoDB(config)
+.ConfigureAuth(config)
+.ConfigureSwagger(config)
 .AddScoped<TodosService>()
-.AddSingleton<IAuthorizationHandler, HasScopeHandler>()
-.AddAuthentication(options =>
-{
-  options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-  options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-  options.Authority = builder.Configuration["Authentication:Domain"];
-  options.Audience = builder.Configuration["Authentication:Audience"];
-});
+.AddControllers(config)
+.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
 
 
-builder.Services.AddSwaggerGen(c =>
-{
 
-  c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-  {
-    Name = "Authorization",
-    In = ParameterLocation.Header,
-    Type = SecuritySchemeType.OAuth2,
-    Flows = new OpenApiOAuthFlows
-    {
-      Implicit = new OpenApiOAuthFlow
-      {
-        Scopes = new Dictionary<string, string>
-                {
-                    { "openid", "Open Id" }
-                },
-        AuthorizationUrl = new Uri(builder.Configuration["Authentication:Domain"] + "authorize?audience=" + builder.Configuration["Authentication:Audience"])
-      }
-    }
-  });
-
-  c.OperationFilter<SecurityRequirementsOperationFilter>();
-});
 
 var app = builder.Build();
 
@@ -89,14 +34,13 @@ app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
   c.SwaggerEndpoint("/swagger/v1/swagger.json", "API");
-  c.OAuthClientId(builder.Configuration["Authentication:ClientId"]);
+  c.OAuthClientId(config["Authentication:ClientId"]);
 });
 
 // app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors(MyAllowSpecificOrigins);
 
 app.MapControllers();
 

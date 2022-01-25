@@ -34,6 +34,6 @@ jobs:
         with:
           push: true
           tags: |-
-            arinfaraj/kubak-todo-api:latest
-            arinfaraj/kubak-todo-api:${{ github.sha }}
-            arinfaraj/kubak-todo-api:${{ github.ref_name }}
+            kubakdev/kubak-todo-api:latest
+            kubakdev/kubak-todo-api:${{ github.sha }}
+            kubakdev/kubak-todo-api:${{ github.ref_name }}
