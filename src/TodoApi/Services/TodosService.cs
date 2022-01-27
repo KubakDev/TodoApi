@@ -32,7 +32,7 @@ namespace TodoApi.Services
     public async Task<Todo?> GetByIdAsync(string id, string userId)
     {
 
-      var filter = Filter.Eq(x => x.UserId, userId);
+      var filter = Filter.Eq(x => x.Id, id);
       filter &= Filter.Eq(x => x.UserId, userId);
 
       return await Collection.Find(filter).FirstOrDefaultAsync();
@@ -44,18 +44,18 @@ namespace TodoApi.Services
     public async Task<Todo?> UpdateAsync(string id, string userId, Todo updatedTodo)
     {
       var filter = Filter.Eq(x => x.UserId, userId);
-      filter &= Filter.Eq(x => x.UserId, userId);
-      return await Collection.FindOneAndReplaceAsync(Filter.Eq(x => x.Id, id), updatedTodo, _ReturnAfter);
+      filter &= Filter.Eq(x => x.Id, id);
+      return await Collection.FindOneAndReplaceAsync(filter, updatedTodo, _ReturnAfter);
     }
 
 
     public async Task RemoveAsync(string id, string userId)
     {
 
-      var filter = Filter.Eq(x => x.UserId, userId);
+      var filter = Filter.Eq(x => x.Id, id);
       filter &= Filter.Eq(x => x.UserId, userId);
 
-      await Collection.DeleteOneAsync(x => x.Id == id);
+      await Collection.DeleteOneAsync(filter);
     }
 
     protected static FilterDefinition<Todo> GetFilterFromSearchOptions(in ListTodoItems? request)
