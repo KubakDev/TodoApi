@@ -32,7 +32,7 @@ namespace TodoApi.Services
     public async Task<Todo?> GetByIdAsync(string id, string userId)
     {
 
-      var filter = Filter.Eq(x => x.UserId, userId);
+      var filter = Filter.Eq(x => x.Id, id);
       filter &= Filter.Eq(x => x.UserId, userId);
 
       return await Collection.Find(filter).FirstOrDefaultAsync();
