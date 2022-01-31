@@ -1,13 +1,7 @@
 using System.Net.Mime;
 using System.Text.Json;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.Mvc.Authorization;
-using Microsoft.OpenApi.Models;
-using TodoApi.Extensions;
-using TodoApi.Models;
-using TodoApi.Models.Common;
 using TodoApi.Services;
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -35,6 +29,9 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
+  if (builder.Environment.IsProduction())
+    c.RoutePrefix = "api/";
+
   c.SwaggerEndpoint("/swagger/v1/swagger.json", "API");
   c.OAuthClientId(config["Authentication:ClientId"]);
 });

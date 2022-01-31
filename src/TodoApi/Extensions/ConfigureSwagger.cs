@@ -8,28 +8,29 @@ public static partial class StartupConfigurations
 
   public static IServiceCollection ConfigureSwagger(this IServiceCollection services, IConfiguration config)
   {
+
     services.AddSwaggerGen(c =>
 {
 
-c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-{
-  Name = "Authorization",
-  In = ParameterLocation.Header,
-  Type = SecuritySchemeType.OAuth2,
-  Flows = new OpenApiOAuthFlows
+  c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
   {
-    Implicit = new OpenApiOAuthFlow
+    Name = "Authorization",
+    In = ParameterLocation.Header,
+    Type = SecuritySchemeType.OAuth2,
+    Flows = new OpenApiOAuthFlows
     {
-      Scopes = new Dictionary<string, string>
+      Implicit = new OpenApiOAuthFlow
+      {
+        Scopes = new Dictionary<string, string>
               {
                     { "openid", "Open Id" }
               },
-      AuthorizationUrl = new Uri(config["Authentication:Domain"] + "authorize?audience=" + config["Authentication:Audience"])
+        AuthorizationUrl = new Uri(config["Authentication:Domain"] + "authorize?audience=" + config["Authentication:Audience"])
+      }
     }
-  }
-});
+  });
 
-c.OperationFilter<SecurityRequirementsOperationFilter>();
+  c.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
     return services;
