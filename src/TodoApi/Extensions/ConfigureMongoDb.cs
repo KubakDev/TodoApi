@@ -20,6 +20,7 @@ namespace TodoApi.Extensions
           .Bind(configuration)
           .ValidateDataAnnotations();
 
+
       ConfigureBson();
 
       return services.AddSingleton(ClientImplementationFactory)
@@ -29,11 +30,18 @@ namespace TodoApi.Extensions
 
     }
 
-    private static IMongoClient ClientImplementationFactory(IServiceProvider serviceProvider)
+    private static IMongoClient ClientImplementationFactory(IServiceProvider serviceProvider, IServiceCollection services)
     {
       var config = serviceProvider.GetRequiredService<IOptions<MongoDBOptions>>();
 
       var clientSetttings = MongoClientSettings.FromConnectionString(config.Value.ConnectionString);
+
+
+      services.AddHealthChecks().AddMongoDb(
+        clientSetttings,
+        name: "MongoDB", timeout: TimeSpan.FromSeconds(3),
+        tags: new[] { "ready" }
+        );
 
 #if DEBUG
       var logger = serviceProvider.GetRequiredService<ILogger<MongoClient>>();
