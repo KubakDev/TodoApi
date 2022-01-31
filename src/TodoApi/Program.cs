@@ -29,10 +29,11 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
+  string prefix = String.Empty;
   if (builder.Environment.IsProduction())
-    c.RoutePrefix = "api/";
+    prefix = "/api";
 
-  c.SwaggerEndpoint("/swagger/v1/swagger.json", "API");
+  c.SwaggerEndpoint($"{prefix}/swagger/v1/swagger.json", "API");
   c.OAuthClientId(config["Authentication:ClientId"]);
 });
 
