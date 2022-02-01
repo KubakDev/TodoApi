@@ -34,6 +34,8 @@ app.UseSwaggerUI(c =>
     prefix = "/api";
 
   c.SwaggerEndpoint($"{prefix}/swagger/v1/swagger.json", "API");
+  c.RoutePrefix = "api";
+
   c.OAuthClientId(config["Authentication:ClientId"]);
 });
 
