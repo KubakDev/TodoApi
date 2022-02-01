@@ -1,7 +1,4 @@
-using System.Net.Mime;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using TodoApi.Services;
 var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
@@ -9,7 +6,6 @@ var config = builder.Configuration;
 // Add services to the container.
 
 
-services.AddEndpointsApiExplorer();
 
 services
 .ConfigureMongoDB(config)
@@ -18,9 +14,8 @@ services
 .AddScoped<TodosService>()
 .AddControllers(config)
 .AddSingleton<IAuthorizationHandler, HasScopeHandler>()
-.AddHealthChecks();
-
-
+.ConfigureHealthChecks(config)
+.AddEndpointsApiExplorer();
 
 
 var app = builder.Build();
@@ -44,33 +39,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.AddHealthChecks(config);
 
-app.MapHealthChecks("/health/ready", new HealthCheckOptions
-{
-  Predicate = (check) => check.Tags.Contains("ready"),
-  ResponseWriter = async (context, report) =>
-  {
-    var result = JsonSerializer.Serialize(new
-    {
-      status = report.Status.ToString(),
-      checks = report.Entries.Select(entry =>
-      new
-      {
-        name = entry.Key,
-        status = entry.Value.Status.ToString(),
-        exception = entry.Value.Exception != null ? entry.Value.Exception.Message : "",
-        duration = entry.Value.Duration.ToString()
-      })
-    });
-    context.Response.ContentType = MediaTypeNames.Application.Json;
-    await context.Response.WriteAsync(result);
-  }
-});
 
-app.MapHealthChecks("/health/live", new HealthCheckOptions
-{
-  Predicate = (_) => false
-});
 
 
 app.Run();
