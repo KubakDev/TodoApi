@@ -26,17 +26,14 @@ services
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-app.UseSwagger(c =>
-{
-  c.RouteTemplate = "/api";
-});
+app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
   string prefix = String.Empty;
   if (builder.Environment.IsProduction())
     prefix = "/api";
 
-  c.SwaggerEndpoint("/swagger/v1/swagger.json", "API");
+  c.SwaggerEndpoint($"{prefix}/swagger/v1/swagger.json", "API");
 
   c.OAuthClientId(config["Authentication:ClientId"]);
 });
