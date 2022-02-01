@@ -36,7 +36,7 @@ app.UseSwaggerUI(c =>
   if (builder.Environment.IsProduction())
     prefix = "/api";
 
-  c.SwaggerEndpoint($"{prefix}/swagger/v1/swagger.json", "API");
+  c.SwaggerEndpoint("/swagger/v1/swagger.json", "API");
 
   c.OAuthClientId(config["Authentication:ClientId"]);
 });
