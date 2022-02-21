@@ -31,6 +31,13 @@ public static partial class StartupConfigurations
   });
 
   c.OperationFilter<SecurityRequirementsOperationFilter>();
+  if (config.GetValue<string?>("BasePath", null) is string serverUrl && !string.IsNullOrEmpty(serverUrl))
+  {
+    c.AddServer(new OpenApiServer()
+    {
+      Url = serverUrl
+    });
+  }
 });
 
     return services;
