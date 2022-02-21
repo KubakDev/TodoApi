@@ -37,3 +37,25 @@ jobs:
             kubakdev/kubak-todo-api:latest
             kubakdev/kubak-todo-api:${{ github.sha }}
             kubakdev/kubak-todo-api:${{ github.ref_name }}
+  push-to-digital-ocean:
+    name: Pull the new images and restart docker-compose
+    runs-on: ubuntu-20.04
+    needs: build
+    steps:
+    - name: Deploy to Digital Ocean droplet via SSH action
+      uses: appleboy/ssh-action@v0.1.3
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        passphrase: ${{ secrets.SSH_PASSWORD }}
+        script: |
+          # Go to todo directory 
+          cd todo
+          
+          # Stop running container
+          docker-compose down
+          # Remove old container
+          docker-compose pull
+          # Run a new container from a new image
+          docker-compose up -d
