@@ -17,7 +17,7 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 *.code-workspace
-
+.sonarqube
 # Kubernetes secrets
 kubernetes/**/*-secret*.json
 kubernetes/**/*-secret*.properties
